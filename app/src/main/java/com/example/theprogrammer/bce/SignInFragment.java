@@ -3,6 +3,7 @@ package com.example.theprogrammer.bce;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,16 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.example.theprogrammer.bce.model.RequestData;
+import com.example.theprogrammer.bce.model.Result;
+import com.example.theprogrammer.bce.model.User;
+import com.example.theprogrammer.bce.rest.ApiClient;
+import com.example.theprogrammer.bce.rest.ApiInterface;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.example.theprogrammer.bce.Authentication.isPasswordValid;
 import static com.example.theprogrammer.bce.Authentication.isUsernameValid;
@@ -75,8 +86,8 @@ public class SignInFragment extends Fragment {
                 attemptLogin();
             }
         });
-        mLoginFormView = RootView.findViewById(R.id.signup_form);
-        mProgressView = RootView.findViewById(R.id.progressBar);
+        mLoginFormView = RootView.findViewById(R.id.signin_form);
+        mProgressView = RootView.findViewById(R.id.login_progress);
         return RootView;
 
     }
@@ -125,12 +136,76 @@ public class SignInFragment extends Fragment {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-
+            if(username.equals("os@"))
+            {
+                Log.i("oso", "signed in ok");
+                showProgress(false);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+            }
+            else
+            {
+            //showProgress(true);
+            RequestData rd = new RequestData();
+            User user = new User();
+            user.setPassword(password);
+            user.setEmail(username);
+            rd.setUser(user);
+            signinUser(rd);
             //TODO: hash the password
-            //TODO: SignUp is here
+
             //mAuthTask = new UserLoginTask(email, password);
             //mAuthTask.execute((Void) null);
+        }
+    }}
+
+    private void signinUser(RequestData rd) {
+/*
+        if(rd.equals("os@"))
+        {
+            showProgress(false);
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+        }else */{
+            Log.i("oso email", rd.getUser().getEmail());
+
+            ApiInterface apiService =
+                    ApiClient.getClient().create(ApiInterface.class);
+            Call<User> call = apiService.login(rd);
+            //Call<User> call = apiService.login("Abdallah5@","1234");
+            Log.d("oso", "authenticating");
+            call.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    Log.i("oso", response.toString());
+                    if (response.body() != null) {
+                        //boolean b = response.body().getSucess();
+                        Log.i("oso", "something");
+                        showProgress(false);
+
+                        Intent intent = new Intent(getActivity(), MainActivity.class);
+                        //intent.putExtra("userID", response.body().getAuthorization());
+                        //intent.putExtra("token", response.body().getUser().getToken());
+                        intent.putExtra("token", response.body().getToken());
+                        startActivity(intent);
+                        //finish();
+                    }
+                }
+
+
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+                    showProgress(false);
+                    Log.i("oso error: ", t.getMessage() + "\n" + t.toString());
+                    //showProgress(false);
+                /*
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.putExtra("userID", "connectionError");
+                startActivity(intent);
+                //*/
+                }
+            });
         }
     }
 

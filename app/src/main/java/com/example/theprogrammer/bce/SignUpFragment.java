@@ -17,13 +17,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import com.example.theprogrammer.bce.model.RequestData;
+import com.example.theprogrammer.bce.model.Result;
+import com.example.theprogrammer.bce.model.User;
+import com.example.theprogrammer.bce.rest.ApiClient;
+import com.example.theprogrammer.bce.rest.ApiInterface;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.example.theprogrammer.bce.Authentication.isEmailValid;
 import static com.example.theprogrammer.bce.Authentication.isPasswordValid;
-import static com.example.theprogrammer.bce.Authentication.isUsernameValid;
 
 
 /**
@@ -32,7 +37,7 @@ import static com.example.theprogrammer.bce.Authentication.isUsernameValid;
 public class SignUpFragment extends Fragment {
 
     static String error;
-    private EditText mUserView;
+    //private EditText mUserView;
     private EditText mPasswordView;
     private EditText mEmailView;
     private View mProgressView;
@@ -48,7 +53,7 @@ public class SignUpFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View RootView = inflater.inflate(R.layout.fragment_sign_up, container, false);
-        mUserView = (EditText) RootView.findViewById(R.id.editTextUsername);
+        //mUserView = (EditText) RootView.findViewById(R.id.editTextUsername);
         error = new String();
         mPasswordView = (EditText) RootView.findViewById(R.id.editTextPass);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -63,7 +68,7 @@ public class SignUpFragment extends Fragment {
             }
         });
         mEmailView = (EditText) RootView.findViewById(R.id.editTextEmail);
-
+/*
         mUserView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,7 +76,7 @@ public class SignUpFragment extends Fragment {
                 attemptLogin();
             }
         });
-
+*/
         mEmailView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,11 +108,11 @@ public class SignUpFragment extends Fragment {
         }
 */
         // Reset errors.
-        mUserView.setError(null);
+        // mUserView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUserView.getText().toString();
+        // String username = mUserView.getText().toString();
         String password = mPasswordView.getText().toString();
         String email = mEmailView.getText().toString();
         boolean cancel = false;
@@ -134,7 +139,7 @@ public class SignUpFragment extends Fragment {
             focusView = mEmailView;
             cancel = true;
         }
-
+/*
         if (TextUtils.isEmpty(username)) {
             mUserView.setError(getString(R.string.error_field_required));
             focusView = mUserView;
@@ -144,7 +149,7 @@ public class SignUpFragment extends Fragment {
             focusView = mUserView;
             cancel = true;
         }
-
+*/
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -156,12 +161,46 @@ public class SignUpFragment extends Fragment {
 
             //TODO: hash the password
             //TODO: SignUp is here
+
+            RequestData rd = new RequestData();
+            User user = new User();
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setName("osama");
+            rd.setUser(user);
+
+            signUpUser(rd);
+
             //mAuthTask = new UserLoginTask(email, password);
             //mAuthTask.execute((Void) null);
         }
     }
 
+    private void signUpUser(RequestData rd) {
+        ApiInterface apiService =
+                ApiClient.getClient().create(ApiInterface.class);
+        Call<Result> call = apiService.CreateUser(rd);
+        Log.d("oso", "authenticating");
+        call.enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                Log.i("oso", response.toString());
+                showProgress(false);
+                if (response.body() != null) {
+                    //boolean b = response.body().getSucess();
+                    Log.i("oso","something");
+                }
+            }
 
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+                Log.i("oso error: ", t.getMessage() + "\n" + t.toString());
+                showProgress(false);
+
+            }
+        });
+
+    }
 
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
