@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">http://45.79.16.134:8000/api/users/</domain>
+    </domain-config>
+</network-security-config>
+
+<!--45.79.16.134:8000-->

@@ -8,8 +8,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,14 +17,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.theprogrammer.bce.model.RequestData2;
+import com.example.theprogrammer.bce.model.RequestData;
 import com.example.theprogrammer.bce.model.Result;
-import com.example.theprogrammer.bce.model.User;
 import com.example.theprogrammer.bce.rest.ApiClient;
 import com.example.theprogrammer.bce.rest.ApiInterface;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -41,7 +42,6 @@ public class DiscoverBluetoothActivity extends AppCompatActivity {
     ListView listView;
     TextView statusTextView;
     Button searchButton;
-    ImageView imageView;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -62,6 +62,7 @@ public class DiscoverBluetoothActivity extends AppCompatActivity {
         }
 
     };
+    ImageView imageView;
     BluetoothAdapter bluetooth;
 
     @Override
@@ -81,7 +82,7 @@ public class DiscoverBluetoothActivity extends AppCompatActivity {
         //listView = findViewById(R.id.listView);
         statusTextView = findViewById(R.id.textView);
         searchButton = findViewById(R.id.btnSearch);
-        imageView = findViewById(R.id.imageView);
+        //imageView = findViewById(R.id.imageView);
         bluetooth = BluetoothAdapter.getDefaultAdapter();
         if (!bluetooth.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -96,7 +97,6 @@ public class DiscoverBluetoothActivity extends AppCompatActivity {
         registerReceiver(broadcastReceiver, intentFilter);
 
         //AcceptThread acceptThread = new AcceptThread(bluetooth);
-
 
     }
 
@@ -129,12 +129,13 @@ class AcceptThread extends Thread {
     private final BluetoothServerSocket mmServerSocket;
     ImageView imageView;
     TextView textView;
+
     //TextView statusTextView = findViewById(R.id.textView);
     public AcceptThread(BluetoothAdapter mBluetoothAdapter, ImageView imageView0, TextView textView0) {
         // Use a temporary object that is later assigned to mmServerSocket
         // because mmServerSocket is final.
         BluetoothServerSocket tmp = null;
-        textView=textView0;
+        textView = textView0;
         try {
             // MY_UUID is the app's UUID string, also used by the client code.
 
@@ -151,13 +152,16 @@ class AcceptThread extends Thread {
 
     public void run() {
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("BCE");
+
         BluetoothSocket socket = null;
         // Keep listening until exception occurs or a socket is returned.
         while (true) {
             //BluetoothSocket finalSocket = null;
             try {
 
-                while(mmServerSocket==null)
+                while (mmServerSocket == null)
                     Log.i("blll", "null socket");
                 Log.i("blll", "waiting for socket accept");
                 socket = mmServerSocket.accept();
@@ -195,15 +199,16 @@ class AcceptThread extends Thread {
 
                     int bytes;
                     InputStream inputStream = socket.getInputStream();
-                    byte[] buffer = new byte[1000];
+                    byte[] buffer = new byte[2000];
 
                     while (true) {
                         try {
                             bytes = inputStream.read(buffer);            //read bytes from input buffer
 
                             String readMessage = new String(buffer, 0, bytes);
-                            sendFaceFeatures(readMessage);
-
+                            //sendFaceFeatures(readMessage);
+                            //Map<String, Object> childUpdates = new HashMap<>();
+                            myRef.child("FacialFeatures").setValue(readMessage);
                             //Send the obtained bytes to the UI Activity via handler
                             Log.i("oso logging", readMessage + "");
                         } catch (IOException e) {
@@ -221,9 +226,10 @@ class AcceptThread extends Thread {
             break;
         }
     }
-    public void sendFaceFeatures(String faceFeatures){
-        RequestData2 rd = new RequestData2();
-        rd.setFaceFeatures(faceFeatures);
+
+    public void sendFaceFeatures(String faceFeatures) {
+        RequestData rd = new RequestData();
+        rd.setFacialfeature(faceFeatures);
         ApiInterface apiService =
                 ApiClient.getClient().create(ApiInterface.class);
         Call<Result> call = apiService.sendFaceFeatures(rd);
@@ -232,15 +238,16 @@ class AcceptThread extends Thread {
         call.enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
-                Log.i("oso","send face features");
+                Log.i("oso", "send face features");
                 Log.i("oso", "names in photo: ");
                 Log.i("oso", response.toString());
+                textView.setText(response.body().getName());
             }
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-                Log.i("oso","failed sending face features");
-                Log.i("oso",t.toString());
+                Log.i("oso", "failed sending face features");
+                Log.i("oso", t.toString());
 
             }
         });

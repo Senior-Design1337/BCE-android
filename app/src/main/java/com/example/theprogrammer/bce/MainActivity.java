@@ -1,5 +1,8 @@
 package com.example.theprogrammer.bce;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,22 +16,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.theprogrammer.bce.model.RequestData;
-import com.example.theprogrammer.bce.model.Result;
 import com.example.theprogrammer.bce.model.User;
-import com.example.theprogrammer.bce.rest.ApiClient;
-import com.example.theprogrammer.bce.rest.ApiInterface;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,8 +53,39 @@ public class MainActivity extends AppCompatActivity {
         token = intent.getStringExtra("token");
 
         Log.i("oso", "intent userID from main = " + userID);
+        //onTokenRefresh();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("BCE");
+        myRef.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
+        FirebaseMessaging.getInstance().subscribeToTopic("test");
+        FirebaseInstanceId.getInstance().getToken();
+
+        Log.d("TOKEN",FirebaseInstanceId.getInstance().getToken());
+
     }
 
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+        // ...
+
+        // TODO(developer): Handle FCM messages here.
+        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
+        Log.d("abdul", "From: " + remoteMessage.getFrom());
+
+        // Check if message contains a data payload.
+        if (remoteMessage.getData().size() > 0) {
+            Log.d("abdul", "Message data payload: " + remoteMessage.getData());
+
+
+        }
+
+        // Check if message contains a notification payload.
+        if (remoteMessage.getNotification() != null) {
+            Log.d("abdul", "Message Notification Body: " + remoteMessage.getNotification().getBody());
+        }
+
+        // Also if you intend on generating your own notifications as a result of a received FCM
+        // message, here is where that should be initiated. See sendNotification method below.
+    }
     public void takePicture(View view) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -70,6 +105,25 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    public void CheckUser(View view) {
+        Intent checker = new Intent( this , CheckUser.class );
+        startActivity(checker);
+    }
+
+/*
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.button:
+                Intent checker = new Intent( this , CheckUser.class );
+                startActivity(checker);
+                break;
+            case R.id.btnTakePicture:
+                takePicture();
+                break;
+        }
+    }
+*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -77,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.app_menu, menu);
         return true;
     }
+
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -111,10 +168,10 @@ public class MainActivity extends AppCompatActivity {
                     userInfo.setId(userID);
 
                     //Log.i("oso encoder=", encodedfile);
-                    byte[] photo = Files.readAllBytes((new File(photoPath)).toPath());
+                    //byte[] photo = Files.readAllBytes((new File(photoPath)).toPath());
                     List<Byte> myPhoto = new ArrayList<Byte>();
 
-                    String encodedfile = new String(Base64.encodeToString(Files.readAllBytes((new File(photoPath)).toPath()), 0));
+                   // String encodedfile = new String(Base64.encodeToString(Files.readAllBytes((new File(photoPath)).toPath()), 0));
 /*
                     for (byte b : photo)
                         myPhoto.add(b);
@@ -127,10 +184,10 @@ public class MainActivity extends AppCompatActivity {
                     //*/
                     userInfo.setToken(token);
                     userInfo.setId(userID);
-                    userInfo.setPhoto(encodedfile);
+                    //userInfo.setPhoto(encodedfile);
 
                     //sendPhoto(requestData);
-                    Log.i("oso", String.valueOf(photo));
+                   // Log.i("oso", String.valueOf(photo));
                     Log.i("oso", String.valueOf(myPhoto.size()));
                     //requestData.setPhoto(photo);
                     //sendPhoto(encodedfile);
@@ -141,6 +198,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
 /*
     private void sendPhoto(RequestData rd) {
         ApiInterface apiService =

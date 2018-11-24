@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.theprogrammer.bce"
-        minSdkVersion 26
-        targetSdkVersion 28
+        minSdkVersion 25
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -32,7 +33,11 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'com.google.firebase:firebase-database:16.0.4'
+    implementation 'com.google.firebase:firebase-firestore:17.1.2'
+    implementation 'com.google.firebase:firebase-storage:16.0.4'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
-
-
 }
+apply plugin: 'com.google.gms.google-services'

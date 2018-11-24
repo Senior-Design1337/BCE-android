@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "317410433043",
+    "firebase_url": "https://sendezproj.firebaseio.com",
+    "project_id": "sendezproj",
+    "storage_bucket": "sendezproj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317410433043:android:90740424c52ec9b4",
+        "android_client_info": {
+          "package_name": "com.example.theprogrammer.bce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317410433043-numon0301pckrl7nhj1r7b27qktb1ttm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.theprogrammer.bce",
+            "certificate_hash": "2b90eceefe860b176bc0045d1f3e2d8b23086db0"
+          }
+        },
+        {
+          "client_id": "317410433043-p52h6795ul7nk8hk2c5sk67the1j6n4d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQkhLicHbEnu7Ii9rsiRGfoF3xuE-fyoQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317410433043-p52h6795ul7nk8hk2c5sk67the1j6n4d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
